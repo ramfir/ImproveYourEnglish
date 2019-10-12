@@ -2,6 +2,7 @@
 *.gradle
 *.properties
 .idea
+.git
 gradle
 .gradle
 /local.properties
