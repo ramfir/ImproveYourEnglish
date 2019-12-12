@@ -28,7 +28,7 @@ public class QuizActivity extends AppCompatActivity {
     List<String> russian;
     private String currentEngish;
     private TextView resultTextView;
-    int chosenWords = 0;
+    String chosenWords = "";
 
     /*@Override
     protected void onResume() {
@@ -65,10 +65,11 @@ public class QuizActivity extends AppCompatActivity {
         listButtons.add((Button)findViewById(R.id.button13));
         resultTextView = findViewById(R.id.textView3);
         resultTextView.setText("0");
-        Intent i = getIntent();
-        chosenWords = i.getIntExtra("KEY",0);
-        Log.d(TAG, "chosen = " + chosenWords);
-        if (chosenWords == 0) {
+        Intent intent = getIntent();
+        if (intent.getStringExtra("KEY") != null)
+            chosenWords = intent.getStringExtra("KEY");
+        //Log.d(TAG, chosenWords);
+        if (chosenWords.equals("")) {
             rWords();
         } else {
             cWords();
@@ -81,28 +82,20 @@ public class QuizActivity extends AppCompatActivity {
         SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(this);
         try {
             SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
-            Cursor cursor = db.query("CHOSEN",
-                    new String[]{"ENGLISH", "RUSSIAN"},
-                    null,
-                    null,
-                    null, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                Log.d(TAG, cursor.getString(1));
-                size = cursor.getCount();
-            } else {
-                Log.d(TAG, "fffffffffffffff");
-            }
+
+            size = ((EnglishDatabaseHelper) englishDatabaseHeleper).getSize(db, "CHOSEN");
+            Log.d(TAG, Integer.toString(size));
             for (int i = 0; i < 5; i++) {
                 while (true) {
-                    int randomNum = (int)(Math.random()*(size-3)+1);
+                    int randomNum = (int)(Math.random()*size+1);
                     if (!randomWords.contains(randomNum)) {
                         randomWords.add(randomNum);
                         break;
                     }
                 }
-                Log.d(TAG, Integer.toString(randomWords.get(i)));
+                //Log.d(TAG, Integer.toString(randomWords.get(i)));
             }
-            cursor = db.query("CHOSEN",
+            Cursor cursor = db.query("CHOSEN",
                     new String[]{"ENGLISH", "RUSSIAN"},
                     "_id = ? OR _id = ? OR _id = ? OR _id = ? OR _id = ?",
                     new String[] {Integer.toString(randomWords.get(0)), Integer.toString(randomWords.get(1)),
@@ -118,7 +111,7 @@ public class QuizActivity extends AppCompatActivity {
                 listButtons.get(i).setText(cursor.getString(0));
                 //listButtons.get(i+5).setText(cursor.getString(1));
                 russian.add(cursor.getString(1));
-                Log.d(TAG, "ura");
+                //Log.d(TAG, "ura");
                 i++;
                 cursor.moveToNext();
             }
@@ -128,14 +121,12 @@ public class QuizActivity extends AppCompatActivity {
             }
             cursor.close();
             db.close();
-
-            cursor.close();
-            db.close();
         } catch (SQLiteException e) {
             Toast toast = Toast.makeText(this,
                     "Database unavailable",
                     Toast.LENGTH_SHORT);
             toast.show();
+            //Log.d(TAG, e.getMessage());
         }
     }
     public void rWords() {
@@ -148,31 +139,9 @@ public class QuizActivity extends AppCompatActivity {
                     break;
                 }
             }
-            Log.d(TAG, Integer.toString(randomWords.get(i)));
+            //Log.d(TAG, Integer.toString(randomWords.get(i)));
         }
         SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(this);
-        try {
-            SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
-            Cursor cursor = db.query("WORD",
-                    new String[]{"ENGLISH", "RUSSIAN"},
-                    "ENGLISH = ?",
-                    new String[] {"yet"},
-                    null, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                Log.d(TAG, cursor.getString(1));
-            } else {
-                Log.d(TAG, "fffffffffffffff");
-            }
-            cursor.close();
-            db.close();
-        } catch (SQLiteException e) {
-            Toast toast = Toast.makeText(this,
-                    "Database unavailable",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-        }
-        //SQLiteDatabase dbb = englishDatabaseHeleper.getWritableDatabase();
-        //EnglishDatabaseHelper.insertWords(dbb, getApplicationContext());//     danger!!!
         try {
             SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
             Cursor cursor = db.query("WORD",
@@ -191,7 +160,7 @@ public class QuizActivity extends AppCompatActivity {
                 listButtons.get(i).setText(cursor.getString(0));
                 //listButtons.get(i+5).setText(cursor.getString(1));
                 russian.add(cursor.getString(1));
-                Log.d(TAG, "ura");
+                //Log.d(TAG, "ura");
                 i++;
                 cursor.moveToNext();
             }
@@ -211,10 +180,10 @@ public class QuizActivity extends AppCompatActivity {
     }
     public void russianClicked(View v) {
         Button btn = (Button)v;
-        if (currentEngish != null && words.get(currentEngish) != null && words.get(currentEngish).equals((String)btn.getText())) {
+        if (currentEngish != null && words.get(currentEngish) != null && words.get(currentEngish).equals(btn.getText())) {
             btn.setVisibility(View.GONE);
             for (int i = 0; i < 5; i++) {
-                if (((String)listButtons.get(i).getText()).equals(currentEngish)) {
+                if ((listButtons.get(i).getText()).equals(currentEngish)) {
                     listButtons.get(i).setVisibility(View.GONE);
                 }
             }
@@ -236,61 +205,11 @@ public class QuizActivity extends AppCompatActivity {
             listButtons.get(i).setVisibility(View.VISIBLE);
             listButtons.get(i).setEnabled(true);
         }
-        if (chosenWords == 0) {
+        if (chosenWords.equals("")) {
             rWords();
         } else {
             cWords();
         }
-        /*ArrayList<Integer> randomWords = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            while (true) {
-                int randomNum = (int)(Math.random()*7000+1);
-                if (!randomWords.contains(randomNum)) {
-                    randomWords.add(randomNum);
-                    break;
-                }
-            }
-            Log.d(TAG, Integer.toString(randomWords.get(i)));
-        }
-        SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(this);
-        //SQLiteDatabase dbb = englishDatabaseHeleper.getWritableDatabase();
-        //EnglishDatabaseHelper.insertWords(dbb, getApplicationContext());//     danger!!!
-        try {
-            SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
-            Cursor cursor = db.query("WORD",
-                    new String[]{"ENGLISH", "RUSSIAN"},
-                    "_id = ? OR _id = ? OR _id = ? OR _id = ? OR _id = ?",
-                    new String[] {Integer.toString(randomWords.get(0)), Integer.toString(randomWords.get(1)),
-                            Integer.toString(randomWords.get(2)), Integer.toString(randomWords.get(3)),
-                            Integer.toString(randomWords.get(4))},
-                    null, null, null);
-            cursor.moveToFirst();
-            int i = 0;
-            words = new HashMap<>();
-            russian = new ArrayList<>();
-            while (cursor.isAfterLast() == false) {
-                words.put(cursor.getString(0), cursor.getString(1));
-                listButtons.get(i).setText(cursor.getString(0));
-                //listButtons.get(i+5).setText(cursor.getString(1));
-                russian.add(cursor.getString(1));
-                Log.d(TAG, "ura");
-                i++;
-                cursor.moveToNext();
-            }
-            Collections.shuffle(russian);
-            for (int j = 0; j < 5; j++) {
-                listButtons.get(j+5).setText(russian.get(j));
-            }
-            cursor.close();
-            db.close();
-
-        } catch (SQLiteException e) {
-            Toast toast = Toast.makeText(this,
-                    "Database unavailable",
-                    Toast.LENGTH_SHORT);
-            toast.show();
-        }*/
-
     }
 
     public void englishClicked(View v) {

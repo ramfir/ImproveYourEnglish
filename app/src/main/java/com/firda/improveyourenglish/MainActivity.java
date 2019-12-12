@@ -1,5 +1,6 @@
 package com.firda.improveyourenglish;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,8 +8,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,11 +20,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SectionsPagerAdapter pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        ViewPager pager = findViewById(R.id.pager);
         pager.setAdapter(pagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(pager);
+        receiveData();
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -54,5 +59,22 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+    private void receiveData()
+    {
+        //RECEIVE DATA VIA INTENT
+        Intent i = getIntent();
+
+        String chosen = i.getStringExtra("KEY");
+        if (chosen != null) {
+            int ch = Integer.parseInt(chosen);
+            ch = ch*2;
+            Intent intent = new Intent(this, QuizActivity.class);
+            intent.putExtra("KEY", chosen);
+            Log.d(TAG, chosen);
+            Log.d(TAG, Integer.toString(ch));
+            startActivity(intent);
+        }
+
     }
 }
