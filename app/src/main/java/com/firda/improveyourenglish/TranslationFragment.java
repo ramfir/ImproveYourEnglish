@@ -11,10 +11,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -23,6 +31,7 @@ import android.widget.Toast;
 public class TranslationFragment extends Fragment {
 
     private static final String TAG = "MainActivity";
+    List<String> chosenWords;
 
     public TranslationFragment() {
         // Required empty public constructor
@@ -37,23 +46,21 @@ public class TranslationFragment extends Fragment {
         final TextView translate = layout.findViewById(R.id.textView2);
         final EditText word = layout.findViewById(R.id.editText);
         ImageView search = layout.findViewById(R.id.imageView);
+
+        final SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(getActivity());
+        final SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
         search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Code here executes on main thread after user presses button
-                SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(getContext());
                 try {
-                    SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
                     Cursor cursor = db.query("WORD",
                             new String[]{"ENGLISH", "RUSSIAN"},
                             "ENGLISH = ?",
                             new String[] {word.getText().toString().toLowerCase()},
                             null, null, null);
                     if (cursor != null && cursor.moveToFirst()) {
-                        Log.d(TAG, cursor.getString(1));
                         translate.setText("Translation\n\n" + cursor.getString(1));
                     } else {
                         translate.setText("Translation\n\nNo result");
-                        Log.d(TAG, "fffffffffffffff");
                     }
                 } catch (SQLiteException e) {
                     Toast toast = Toast.makeText(getContext(),
@@ -75,7 +82,6 @@ public class TranslationFragment extends Fragment {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(getActivity());
                 SQLiteDatabase db = englishDatabaseHeleper.getWritableDatabase();
                 SQLiteDatabase dbb = englishDatabaseHeleper.getReadableDatabase();
                 Cursor cursor = dbb.query("WORD",
@@ -89,25 +95,40 @@ public class TranslationFragment extends Fragment {
                     wordValues.put("ENGLISH", word.getText().toString().toLowerCase());
                     wordValues.put("RUSSIAN", cursor.getString(1));
                     db.insert("CHOSEN", null, wordValues);
-                    cursor.close();
-                    db.close();
-                    dbb.close();
                     Toast toast = Toast.makeText(getContext(),
                             "Was added",
                             Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    //translate.setText("Translation\n\nNo result");
                     Toast toast = Toast.makeText(getContext(),
                             "Was not added",
                             Toast.LENGTH_SHORT);
                     toast.show();
-                    Log.d(TAG, "fffffffffffffff");
                 }
-
-                //word.setText("");
             }
         });
+        chosenWords = new ArrayList<>();
+
+        try {
+            Cursor cursor = db.query("CHOSEN",
+                    new String[]{"ENGLISH", "RUSSIAN"},
+                    null,
+                    null,
+                    null, null, null);
+            cursor.moveToFirst();
+            while (cursor.isAfterLast() == false) {
+                chosenWords.add(cursor.getString(0) + " - " + cursor.getString(1));
+                cursor.moveToNext();
+            }
+        } catch (SQLiteException e) {
+            Log.d(TAG, e.getMessage());
+        }
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(
+                getActivity(),
+                android.R.layout.simple_list_item_1,
+                chosenWords);
+        ListView listWords = layout.findViewById(R.id.list_words);
+        listWords.setAdapter(listAdapter);
         return layout;
     }
 

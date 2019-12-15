@@ -16,7 +16,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -30,24 +29,6 @@ public class QuizActivity extends AppCompatActivity {
     private TextView resultTextView;
     String chosenWords = "";
 
-    /*@Override
-    protected void onResume() {
-        super.onResume();
-        final String sender=this.getIntent().getExtras().getString("KEY");
-        if(sender != null)
-        {
-            this.receiveData();
-            Toast.makeText(this, "Received", Toast.LENGTH_SHORT).show();
-
-        }
-    }
-    private void receiveData()
-    {
-        //RECEIVE DATA VIA INTENT
-        Intent i = getIntent();
-        //String name = i.getStringExtra("KEY");
-        chosenWords = i.getIntExtra("KEY",0);
-    }*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +49,6 @@ public class QuizActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getStringExtra("KEY") != null)
             chosenWords = intent.getStringExtra("KEY");
-        //Log.d(TAG, chosenWords);
         if (chosenWords.equals("")) {
             rWords();
         } else {
@@ -82,7 +62,6 @@ public class QuizActivity extends AppCompatActivity {
         SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(this);
         try {
             SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
-
             size = ((EnglishDatabaseHelper) englishDatabaseHeleper).getSize(db, "CHOSEN");
             Log.d(TAG, Integer.toString(size));
             for (int i = 0; i < 5; i++) {
@@ -93,7 +72,6 @@ public class QuizActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                //Log.d(TAG, Integer.toString(randomWords.get(i)));
             }
             Cursor cursor = db.query("CHOSEN",
                     new String[]{"ENGLISH", "RUSSIAN"},
@@ -109,9 +87,7 @@ public class QuizActivity extends AppCompatActivity {
             while (cursor.isAfterLast() == false) {
                 words.put(cursor.getString(0), cursor.getString(1));
                 listButtons.get(i).setText(cursor.getString(0));
-                //listButtons.get(i+5).setText(cursor.getString(1));
                 russian.add(cursor.getString(1));
-                //Log.d(TAG, "ura");
                 i++;
                 cursor.moveToNext();
             }
@@ -126,7 +102,6 @@ public class QuizActivity extends AppCompatActivity {
                     "Database unavailable",
                     Toast.LENGTH_SHORT);
             toast.show();
-            //Log.d(TAG, e.getMessage());
         }
     }
     public void rWords() {
@@ -139,7 +114,6 @@ public class QuizActivity extends AppCompatActivity {
                     break;
                 }
             }
-            //Log.d(TAG, Integer.toString(randomWords.get(i)));
         }
         SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(this);
         try {
@@ -158,9 +132,7 @@ public class QuizActivity extends AppCompatActivity {
             while (cursor.isAfterLast() == false) {
                 words.put(cursor.getString(0), cursor.getString(1));
                 listButtons.get(i).setText(cursor.getString(0));
-                //listButtons.get(i+5).setText(cursor.getString(1));
                 russian.add(cursor.getString(1));
-                //Log.d(TAG, "ura");
                 i++;
                 cursor.moveToNext();
             }
@@ -180,24 +152,29 @@ public class QuizActivity extends AppCompatActivity {
     }
     public void russianClicked(View v) {
         Button btn = (Button)v;
-        if (currentEngish != null && words.get(currentEngish) != null && words.get(currentEngish).equals(btn.getText())) {
-            btn.setVisibility(View.GONE);
-            for (int i = 0; i < 5; i++) {
-                if ((listButtons.get(i).getText()).equals(currentEngish)) {
-                    listButtons.get(i).setVisibility(View.GONE);
+        //if (currentEngish.equals("")) {
+          //  currentEngish = btn.getText().toString();
+        //} else {
+            if (currentEngish != null && words.get(currentEngish) != null && words.get(currentEngish).equals(btn.getText())) {
+                btn.setVisibility(View.GONE);
+                for (int i = 0; i < 5; i++) {
+                    if ((listButtons.get(i).getText()).equals(currentEngish)) {
+                        listButtons.get(i).setVisibility(View.GONE);
+                    }
                 }
-            }
-            for (int i = 0; i < 5; i++) {
-                if (listButtons.get(i).getVisibility() != View.GONE) {
-                    break;
-                } else if (i == 4) {
-                    round();
+                for (int i = 0; i < 5; i++) {
+                    if (listButtons.get(i).getVisibility() != View.GONE) {
+                        break;
+                    } else if (i == 4) {
+                        round();
+                    }
                 }
+                currentEngish = "";
+            } else {
+                resultTextView.setText(Integer.toString(Integer.parseInt(resultTextView.getText().toString())+1));
             }
-        } else {
-            //Log.d(TAG, Integer.toString(Integer.parseInt(resultTextView.getText().toString())+1));
-            resultTextView.setText(Integer.toString(Integer.parseInt(resultTextView.getText().toString())+1));
-        }
+        //}
+
     }
 
     public void round() {

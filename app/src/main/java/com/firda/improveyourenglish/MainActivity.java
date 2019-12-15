@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); // keyboard doesn't appear over
 
         SectionsPagerAdapter pagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         ViewPager pager = findViewById(R.id.pager);
@@ -35,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
                     return new TranslationFragment();
                 case 1:
                     return new QuizFragment();
+                case 2:
+                    return new AboutAppFragment();
             }
             return null;
         }
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
                     return getResources().getText(R.string.TranslationFragment);
                 case 1:
                     return getResources().getText(R.string.QuizFragment);
+                case 2:
+                    return "About";
             }
             return null;
         }
