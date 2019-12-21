@@ -5,5 +5,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="QuizFragment">Quiz</string>
     <string name="TranslationFragment">Translation</string>
+    <string name="aboutApp">One of the most popular translation apps in the world, iTranslate has almost 300,000 ratings on iTunes and over 300,000 on Google Play — most of them four and five stars. There’s even a special version for Apple Watch so you can quickly translate on your wrist if needed.
+
+</string>
 
 </resources>

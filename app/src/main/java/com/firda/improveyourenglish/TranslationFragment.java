@@ -32,6 +32,9 @@ public class TranslationFragment extends Fragment {
 
     private static final String TAG = "MainActivity";
     List<String> chosenWords;
+    ListView listWords;
+    SQLiteOpenHelper englishDatabaseHeleper;
+    SQLiteDatabase db;
 
     public TranslationFragment() {
         // Required empty public constructor
@@ -46,9 +49,9 @@ public class TranslationFragment extends Fragment {
         final TextView translate = layout.findViewById(R.id.textView2);
         final EditText word = layout.findViewById(R.id.editText);
         ImageView search = layout.findViewById(R.id.imageView);
-
-        final SQLiteOpenHelper englishDatabaseHeleper = new EnglishDatabaseHelper(getActivity());
-        final SQLiteDatabase db = englishDatabaseHeleper.getReadableDatabase();
+        listWords = layout.findViewById(R.id.list_words);
+        englishDatabaseHeleper = new EnglishDatabaseHelper(getActivity());
+        db = englishDatabaseHeleper.getReadableDatabase();
         search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -90,15 +93,30 @@ public class TranslationFragment extends Fragment {
                         new String[] {word.getText().toString().toLowerCase()},
                         null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    Log.d(TAG, cursor.getString(1));
-                    ContentValues wordValues = new ContentValues();
-                    wordValues.put("ENGLISH", word.getText().toString().toLowerCase());
-                    wordValues.put("RUSSIAN", cursor.getString(1));
-                    db.insert("CHOSEN", null, wordValues);
-                    Toast toast = Toast.makeText(getContext(),
-                            "Was added",
-                            Toast.LENGTH_SHORT);
-                    toast.show();
+                    //Log.d(TAG, cursor.getString(1));
+                    Cursor cursor1 = dbb.query("CHOSEN",
+                            new String[]{"ENGLISH", "RUSSIAN"},
+                            "ENGLISH = ?",
+                            new String[] {word.getText().toString().toLowerCase()},
+                            null, null, null);
+                    if (cursor1 != null && cursor1.moveToFirst()) {
+                        //Log.d(TAG, cursor1.getString(1));
+                        Toast toast = Toast.makeText(getContext(),
+                                "Already exist",
+                                Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
+                        ContentValues wordValues = new ContentValues();
+                        wordValues.put("ENGLISH", word.getText().toString().toLowerCase());
+                        wordValues.put("RUSSIAN", cursor.getString(1));
+                        db.insert("CHOSEN", null, wordValues);
+                        Toast toast = Toast.makeText(getContext(),
+                                "Was added",
+                                Toast.LENGTH_SHORT);
+                        toast.show();
+                        updateListView();
+                    }
+
                 } else {
                     Toast toast = Toast.makeText(getContext(),
                             "Was not added",
@@ -107,6 +125,11 @@ public class TranslationFragment extends Fragment {
                 }
             }
         });
+        updateListView();
+        return layout;
+    }
+
+    public void updateListView() {
         chosenWords = new ArrayList<>();
 
         try {
@@ -127,9 +150,7 @@ public class TranslationFragment extends Fragment {
                 getActivity(),
                 android.R.layout.simple_list_item_1,
                 chosenWords);
-        ListView listWords = layout.findViewById(R.id.list_words);
         listWords.setAdapter(listAdapter);
-        return layout;
     }
 
 

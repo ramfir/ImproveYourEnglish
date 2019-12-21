@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +26,10 @@ public class QuizActivity extends AppCompatActivity {
     private List<Button> listButtons;
     private static final String TAG = "MainActivity";
     Map<String, String> words;
+    Map<String, String> wordsR;
     List<String> russian;
-    private String currentEngish;
+    private String currentEngish = "";
+    private String currentRussian = "";
     private TextView resultTextView;
     String chosenWords = "";
 
@@ -33,6 +37,21 @@ public class QuizActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
+
+        Toolbar toolbar = findViewById(R.id.toolbar); // made up toolbar
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar(); // back button on top
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("STRING_TO_PASS", "Some string");
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
+
         listButtons = new ArrayList<>();
         listButtons.add((Button)findViewById(R.id.button4));
         listButtons.add((Button)findViewById(R.id.button5));
@@ -83,9 +102,11 @@ public class QuizActivity extends AppCompatActivity {
             cursor.moveToFirst();
             int i = 0;
             words = new HashMap<>();
+            wordsR = new HashMap<>();
             russian = new ArrayList<>();
             while (cursor.isAfterLast() == false) {
                 words.put(cursor.getString(0), cursor.getString(1));
+                wordsR.put(cursor.getString(1), cursor.getString(0));
                 listButtons.get(i).setText(cursor.getString(0));
                 russian.add(cursor.getString(1));
                 i++;
@@ -128,9 +149,11 @@ public class QuizActivity extends AppCompatActivity {
             cursor.moveToFirst();
             int i = 0;
             words = new HashMap<>();
+            wordsR = new HashMap<>();
             russian = new ArrayList<>();
             while (cursor.isAfterLast() == false) {
                 words.put(cursor.getString(0), cursor.getString(1));
+                wordsR.put(cursor.getString(1), cursor.getString(0));
                 listButtons.get(i).setText(cursor.getString(0));
                 russian.add(cursor.getString(1));
                 i++;
@@ -152,9 +175,13 @@ public class QuizActivity extends AppCompatActivity {
     }
     public void russianClicked(View v) {
         Button btn = (Button)v;
-        //if (currentEngish.equals("")) {
-          //  currentEngish = btn.getText().toString();
-        //} else {
+        if (currentEngish.equals("")) {
+            currentRussian = btn.getText().toString();
+            for (int i = 5; i < 10; i++) {
+                listButtons.get(i).setEnabled(true);
+            }
+            btn.setEnabled(false);
+        } else {
             if (currentEngish != null && words.get(currentEngish) != null && words.get(currentEngish).equals(btn.getText())) {
                 btn.setVisibility(View.GONE);
                 for (int i = 0; i < 5; i++) {
@@ -171,10 +198,10 @@ public class QuizActivity extends AppCompatActivity {
                 }
                 currentEngish = "";
             } else {
+                //Log.d(TAG, currentRussian);
                 resultTextView.setText(Integer.toString(Integer.parseInt(resultTextView.getText().toString())+1));
             }
-        //}
-
+        }
     }
 
     public void round() {
@@ -190,11 +217,32 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void englishClicked(View v) {
-        for (int i = 0; i < 5; i++) {
-            listButtons.get(i).setEnabled(true);
-        }
         Button btn = (Button)v;
-        currentEngish = (String)btn.getText();
-        btn.setEnabled(false);
+        if (currentRussian.equals("")) {
+            for (int i = 0; i < 5; i++) {
+                listButtons.get(i).setEnabled(true);
+            }
+            currentEngish = (String)btn.getText();
+            btn.setEnabled(false);
+        } else {
+            if (currentRussian != null && wordsR.get(currentRussian) != null && wordsR.get(currentRussian).equals(btn.getText())) {
+                btn.setVisibility(View.GONE);
+                for (int i = 5; i < 10; i++) {
+                    if ((listButtons.get(i).getText()).equals(currentRussian)) {
+                        listButtons.get(i).setVisibility(View.GONE);
+                    }
+                }
+                for (int i = 0; i < 5; i++) {
+                    if (listButtons.get(i).getVisibility() != View.GONE) {
+                        break;
+                    } else if (i == 4) {
+                        round();
+                    }
+                }
+                currentRussian = "";
+            } else {
+                resultTextView.setText(Integer.toString(Integer.parseInt(resultTextView.getText().toString())+1));
+            }
+        }
     }
 }
