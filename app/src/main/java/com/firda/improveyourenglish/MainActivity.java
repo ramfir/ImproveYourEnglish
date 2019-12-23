@@ -1,6 +1,7 @@
 package com.firda.improveyourenglish;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +13,15 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.WindowManager;
+import org.json.simple.*;
+import org.json.simple.parser.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,8 +47,42 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(pager);
         receiveDataFromFragment();
         receiveDataFromTopButton();
-    }
 
+        // тест
+        //new UpdateDrinkTask().execute();
+    }
+    /*private class UpdateDrinkTask extends AsyncTask<Void, Void, URLConnection> {
+        protected URLConnection doInBackground(Void... params) {
+            try {
+                URLConnection connection = new URL("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191222T210710Z.4eb9d958c35aef14.8f1b0ca08c0e5b7eac1b7ae19b6ed0ea57002387&text=sadfsadf&lang=en-ru&format=plain&options=1").openConnection();
+                InputStream is = connection.getInputStream();
+                InputStreamReader reader = new InputStreamReader(is);
+                char[] buffer = new char[256];
+                int rc;
+
+                StringBuilder sb = new StringBuilder();
+
+                while ((rc = reader.read(buffer)) != -1)
+                    sb.append(buffer, 0, rc);
+
+                reader.close();
+
+                Log.d(TAG, sb.toString());
+                Object obj = new JSONParser().parse(sb.toString());
+                JSONObject jo = (JSONObject) obj;
+                JSONArray  firstName = (JSONArray) jo.get("text");
+                Iterator phonesItr = firstName.iterator();
+                while (phonesItr.hasNext()) {
+                    Log.d(TAG, (String) phonesItr.next());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }*/
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);

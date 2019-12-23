@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,11 +19,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -35,6 +44,8 @@ public class TranslationFragment extends Fragment {
     ListView listWords;
     SQLiteOpenHelper englishDatabaseHeleper;
     SQLiteDatabase db;
+    TextView translate;
+    EditText word;
 
     public TranslationFragment() {
         // Required empty public constructor
@@ -46,8 +57,8 @@ public class TranslationFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View layout = inflater.inflate(R.layout.fragment_translation, container, false);
-        final TextView translate = layout.findViewById(R.id.textView2);
-        final EditText word = layout.findViewById(R.id.editText);
+        translate = layout.findViewById(R.id.textView2);
+        word = layout.findViewById(R.id.editText);
         ImageView search = layout.findViewById(R.id.imageView);
         listWords = layout.findViewById(R.id.list_words);
         englishDatabaseHeleper = new EnglishDatabaseHelper(getActivity());
@@ -63,7 +74,8 @@ public class TranslationFragment extends Fragment {
                     if (cursor != null && cursor.moveToFirst()) {
                         translate.setText("Translation\n\n" + cursor.getString(1));
                     } else {
-                        translate.setText("Translation\n\nNo result");
+                        translate.setText("Translation\n\nNo result. Turn on wifi and repeat");
+                        yandexAPI();
                     }
                 } catch (SQLiteException e) {
                     Toast toast = Toast.makeText(getContext(),
@@ -126,7 +138,58 @@ public class TranslationFragment extends Fragment {
             }
         });
         updateListView();
+        //new UpdateDrinkTask().execute();
         return layout;
+    }
+    public void yandexAPI() {
+        new UpdateDrinkTask().execute(String.valueOf(word.getText()));
+    }
+    private class UpdateDrinkTask extends AsyncTask<String, Void, String> {
+        String edText = "";
+        protected String doInBackground(String... params) {
+            try {
+                String text = params[0];
+                edText = params[0];
+                URLConnection connection = new URL("https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20191222T210710Z.4eb9d958c35aef14.8f1b0ca08c0e5b7eac1b7ae19b6ed0ea57002387&text="+text+"&lang=en-ru&format=plain&options=1").openConnection();
+                InputStream is = connection.getInputStream();
+                InputStreamReader reader = new InputStreamReader(is);
+                char[] buffer = new char[256];
+                int rc;
+
+                StringBuilder sb = new StringBuilder();
+
+                while ((rc = reader.read(buffer)) != -1)
+                    sb.append(buffer, 0, rc);
+
+                reader.close();
+
+                Log.d(TAG, sb.toString());
+                Object obj = new JSONParser().parse(sb.toString());
+                JSONObject jo = (JSONObject) obj;
+                JSONArray firstName = (JSONArray) jo.get("text");
+                Iterator phonesItr = firstName.iterator();
+                while (phonesItr.hasNext()) {
+                    return (String) phonesItr.next();
+                    //Log.d(TAG, (String) phonesItr.next());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        protected void onPostExecute(String s) {
+            if (s != null && !s.equals(edText)) {
+                translate.setText("Translation\n\n" + s);
+                SQLiteDatabase db = englishDatabaseHeleper.getWritableDatabase();
+                ContentValues wordValues = new ContentValues();
+                wordValues.put("ENGLISH", edText.toLowerCase());
+                wordValues.put("RUSSIAN", s);
+                db.insert("WORD", null, wordValues);
+            }
+
+        }
     }
 
     public void updateListView() {
