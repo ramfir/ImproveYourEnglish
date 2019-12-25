@@ -1,6 +1,8 @@
 package com.firda.improveyourenglish;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -24,7 +27,7 @@ public class QuizFragment extends Fragment {
     public QuizFragment() {
         // Required empty public constructor
     }
-
+    private static final String TAG = "MainActivity";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,7 +68,9 @@ public class QuizFragment extends Fragment {
                 }
             }
         });
+        Log.d(TAG, "DD");
         return layout;
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.firda.improveyourenglish;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -83,6 +85,7 @@ public class TranslationFragment extends Fragment {
                             Toast.LENGTH_SHORT);
                     toast.show();
                 }
+                hideKeyboard(getActivity());
 
             }
         });
@@ -135,11 +138,22 @@ public class TranslationFragment extends Fragment {
                             Toast.LENGTH_SHORT);
                     toast.show();
                 }
+                hideKeyboard(getActivity());
             }
         });
         updateListView();
         //new UpdateDrinkTask().execute();
         return layout;
+    }
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
     public void yandexAPI() {
         new UpdateDrinkTask().execute(String.valueOf(word.getText()));
@@ -155,22 +169,16 @@ public class TranslationFragment extends Fragment {
                 InputStreamReader reader = new InputStreamReader(is);
                 char[] buffer = new char[256];
                 int rc;
-
                 StringBuilder sb = new StringBuilder();
-
                 while ((rc = reader.read(buffer)) != -1)
                     sb.append(buffer, 0, rc);
-
                 reader.close();
-
-                Log.d(TAG, sb.toString());
                 Object obj = new JSONParser().parse(sb.toString());
                 JSONObject jo = (JSONObject) obj;
                 JSONArray firstName = (JSONArray) jo.get("text");
                 Iterator phonesItr = firstName.iterator();
                 while (phonesItr.hasNext()) {
                     return (String) phonesItr.next();
-                    //Log.d(TAG, (String) phonesItr.next());
                 }
             } catch (IOException e) {
                 e.printStackTrace();

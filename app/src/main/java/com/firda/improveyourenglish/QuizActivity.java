@@ -69,8 +69,10 @@ public class QuizActivity extends AppCompatActivity {
         if (intent.getStringExtra("KEY") != null)
             chosenWords = intent.getStringExtra("KEY");
         if (chosenWords.equals("")) {
+            setTitle("Random words");
             rWords();
         } else {
+            setTitle("Chosen words");
             cWords();
         }
 
