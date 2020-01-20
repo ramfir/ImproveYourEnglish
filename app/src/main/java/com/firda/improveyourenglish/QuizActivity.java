@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -77,6 +79,34 @@ public class QuizActivity extends AppCompatActivity {
         }
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.update:
+                //Intent intent = new Intent(this, OrderActivity.class);
+                //startActivity(intent);
+                round();
+                return true;
+            case R.id.info:
+                Toast toast = Toast.makeText(this,
+                        "Choose a word from one side then its translation from another side",
+                        Toast.LENGTH_LONG);
+                toast.show();
+                return true;
+            case R.id.refresh:
+                resultTextView.setText("0");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     public void cWords() {
         ArrayList<Integer> randomWords = new ArrayList<>();
         int size = 0;

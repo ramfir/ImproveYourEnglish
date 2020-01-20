@@ -5,8 +5,19 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="QuizFragment">Quiz</string>
     <string name="TranslationFragment">Translation</string>
-    <string name="aboutApp">One of the most popular translation apps in the world, iTranslate has almost 300,000 ratings on iTunes and over 300,000 on Google Play — most of them four and five stars. There’s even a special version for Apple Watch so you can quickly translate on your wrist if needed.
+    <string name="aboutApp"><b>ImproveYourEnglish</b> - приложение, помогающее Вам увеличить словарный запас английского языка\n</string>
+    <string name="translation">Для перевода английского слова на русский введите его в текстовое поле, нажмите кнопку поиска и вы увидете перевод снизу.
+        Если поиск не дал результат, включите интернет и повторите попытку, в таком случае приложение переведет слово используя
+        <b>API Яндекс.Переводчика</b>\n</string>
+    <string name="options">Нажав плюсик вы добавите слово в добавите слово в раздел избранное, которое отображается снизу раздела перевод.\n
+        Во вкладке <b>Quiz</b> Вы можете выбрать 2 режима. В режиме <b>Random Words</b> появятся 5 случайных английских слов с левой стороны
+        и пять - с правой, в случайном порядке. Ваша задача в сопоставлении слов с их переводом. Для этого выберете английское(русское)
+        слово с левой(правой) стороны, а затем его перевод на русский(английский) с правой(левой). При правильном сопоставлении выбранное
+        слово исчезает, иначе - увеличивается счетких ошибок Mistakes. В режиме <b>Chosen Words</b> такая же картина, за исключением того что
+        слова выбираются из раздела Избранное.</string>
 
-</string>
+    <string name="update">Update</string>
+    <string name="info">Info</string>
+    <string name="refresh">Reset Mistakes</string>
 
 </resources>

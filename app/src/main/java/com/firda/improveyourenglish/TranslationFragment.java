@@ -68,6 +68,8 @@ public class TranslationFragment extends Fragment {
         search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
+                    Log.d(TAG, word.getText().toString());
+                    word.setText(word.getText().toString().trim().toLowerCase());
                     Cursor cursor = db.query("WORD",
                             new String[]{"ENGLISH", "RUSSIAN"},
                             "ENGLISH = ?",
@@ -100,6 +102,7 @@ public class TranslationFragment extends Fragment {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                word.setText(word.getText().toString().trim().toLowerCase());
                 SQLiteDatabase db = englishDatabaseHeleper.getWritableDatabase();
                 SQLiteDatabase dbb = englishDatabaseHeleper.getReadableDatabase();
                 Cursor cursor = dbb.query("WORD",
@@ -178,6 +181,7 @@ public class TranslationFragment extends Fragment {
                 JSONArray firstName = (JSONArray) jo.get("text");
                 Iterator phonesItr = firstName.iterator();
                 while (phonesItr.hasNext()) {
+                    //Log.d(TAG, (String) phonesItr.next());
                     return (String) phonesItr.next();
                 }
             } catch (IOException e) {
@@ -188,6 +192,7 @@ public class TranslationFragment extends Fragment {
             return null;
         }
         protected void onPostExecute(String s) {
+            //Log.d(TAG, s);
             if (s != null && !s.equals(edText)) {
                 translate.setText("Translation\n\n" + s);
                 SQLiteDatabase db = englishDatabaseHeleper.getWritableDatabase();
